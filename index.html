@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFC Ranking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*{
+box-sizing:border-box;
+}
+body{
+margin:0;
+font-family:'Roboto',sans-serif;
+background:#ffffff;
+color:#19303A;
+}
+.header{
+background:#f4f5f7;
+padding:18px 20px;
+border-bottom:1px solid #CED8DB;
+position:sticky;
+top:0;
+z-index:10;
+}
+.headerTitle{
+font-size:22px;
+font-weight:800;
+}
+.sub{
+font-size:12px;
+color:#888;
+margin-top:2px;
+font-weight:400;
+}
+.wrap{
+max-width:1000px;
+margin:auto;
+padding:15px 10px;
+}
+.seasonBox{
+margin-bottom:18px;
+}
+.seasonLabel{
+font-size:11px;
+color:#455C66;
+margin-bottom:6px;
+font-weight:500;
+}
+#seasonSelect{
+width:180px;
+padding:10px 12px;
+border:1px solid #CED8DB;
+border-radius:10px;
+background:#fff;
+color:#19303A;
+font-size:14px;
+font-weight:700;
+font-family:'Roboto',sans-serif;
+}
+table{
+width:100%;
+border-collapse:collapse;
+background:#fff;
+border-radius:12px;
+overflow:hidden;
+table-layout: fixed; /* 컬럼 너비 고정을 위해 추가 */
+}
+th{
+background:#fff;
+padding:12px;
+font-size:12px;
+color:#455C66;
+text-align:left;
+font-weight:500;
+border-bottom:1px solid #CED8DB;
+}
+td{
+padding:14px 12px;
+font-size:13px;
+color:#19303A;
+border-bottom:1px solid #CED8DB;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+/* 테이블 컬럼 비율 및 정렬 조정 (세 번째 시즌 컬럼 및 하단 데이터 중앙 정렬로 교체) */
+th:nth-child(1), td:nth-child(1) { width: 12%; }
+th:nth-child(2), td:nth-child(2) { width: 43%; }
+th:nth-child(3), td:nth-child(3) { width: 25%; text-align: center; } /* 가운데 정렬 적용 */
+th:nth-child(4), td:nth-child(4) { width: 20%; text-align: right; }
+th:nth-child(4) { text-align: right; }
+tbody tr{
+cursor:pointer;
+user-select:none;
+-webkit-user-select:none;
+}
+tbody tr:last-child td{
+border-bottom:none;
+}
+.rank{
+color:#455C66;
+font-size:12px;
+font-weight:400;
+}
+.clubBox{
+display:flex;
+align-items:center;
+gap:6px;
+margin-left:-4px;
+}
+.trendWrap{
+width:12px;
+text-align:center;
+flex-shrink:0;
+}
+.logoWrap{
+width:32px;
+height:32px;
+background:#ffffff;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
+flex-shrink:0;
+}
+.logo{
+width:32px;
+height:32px;
+object-fit:contain;
+object-position:center;
+background:#ffffff;
+display:block;
+flex-shrink:0;
+}
+.name{
+font-size:14px;
+font-weight:700;
+color:#19303A;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+.country{
+font-size:11px;
+color:#455C66;
+margin-top:2px;
+}
+.up{
+color:#44932A;
+font-weight:700;
+}
+.down{
+color:#BB4042;
+font-weight:700;
+}
+.none{
+color:#9EA7AC;
+font-weight:700;
+}
+.form{
+margin-top:15px;
+background:#f4f5f7;
+padding:20px;
+border-radius:0;
+box-shadow:none;
+position:relative;
+overflow:hidden;
+}
+.form h3{
+margin:0 0 10px;
+color:#19303A;
+}
+.adminContent{
+transition:.25s;
+}
+.adminContent.locked{
+filter:blur(8px);
+pointer-events:none;
+user-select:none;
+}
+.passwordBox{
+position:absolute;
+inset:0;
+background:rgba(244,245,247,.92);
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:5;
+}
+.passwordInner{
+width:100%;
+max-width:320px;
+text-align:center;
+}
+.passwordTitle{
+font-size:16px;
+font-weight:700;
+color:#19303A;
+margin-bottom:10px;
+}
+.passwordDesc{
+font-size:12px;
+color:#455C66;
+margin-bottom:14px;
+}
+input,
+select,
+button{
+width:100%;
+padding:10px;
+margin-top:8px;
+border-radius:8px;
+font-family:'Roboto',sans-serif;
+}
+input,
+select{
+border:1px solid #CED8DB;
+color:#19303A;
+}
+button{
+border:1px solid #CED8DB;
+cursor:pointer;
+}
+.addBtn,
+.unlockBtn,
+.closeBtn{
+background:#111;
+color:#fff;
+}
+.deleteSeasonBtn{
+background:#BB4042;
+color:#fff;
+border:none;
+}
+.editBtn,
+.deleteBtn,
+.saveBtn{
+background:#f0f2f5;
+color:#19303A;
+font-weight:400;
+}
+.deleteBtn{
+margin-top:8px;
+}
+.overlay{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.35);
+display:none;
+z-index:999;
+}
+.menuBox,
+.editModal{
+position:fixed;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%);
+background:#fff;
+border-radius:14px;
+width:90%;
+max-width:340px;
+padding:18px;
+z-index:1000;
+display:none;
+box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+.menuTitle{
+font-size:12px;
+color:#19303A;
+margin-bottom:12px;
+}
+.modalTitle{
+font-size:18px;
+font-weight:700;
+color:#19303A;
+margin-bottom:12px;
+}
+hr{
+border:none;
+border-top:1px solid #CED8DB;
+margin:18px 0;
+}
+@media(max-width:768px){
+td,th{
+font-size:11px;
+padding:10px 6px;
+}
+.name{
+font-size:12px;
+}
+th:nth-child(1), td:nth-child(1) { width: 15%; }
+th:nth-child(2), td:nth-child(2) { width: 40%; }
+th:nth-child(3), td:nth-child(3) { width: 25%; text-align: center; } /* 모바일 해상도에서도 중앙 정렬 유지 */
+th:nth-child(4), td:nth-child(4) { width: 20%; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="headerTitle">AFC Ranking</div>
+<div class="sub">Asian Club Coefficient</div>
+</div>
+<div class="wrap">
+<div class="seasonBox">
+<div class="seasonLabel">Season</div>
+<select id="seasonSelect" onchange="changeSeason()"></select>
+</div>
+<table>
+<thead>
+<tr>
+<th>Pos</th>
+<th>Club</th>
+<th id="dynamicSeasonHeader">25/26</th>
+<th>Pts</th>
+</tr>
+</thead>
+<tbody id="body"></tbody>
+</table>
+<div class="form">
+<div class="passwordBox" id="passwordBox">
+<div class="passwordInner">
+<div class="passwordTitle">관리자 메뉴</div>
+<div class="passwordDesc">
+클럽 및 시즌 관리 기능은 비밀번호 입력 후 사용할 수 있습니다.
+</div>
+<input type="password" id="adminPassword" placeholder="비밀번호 입력">
+<button class="unlockBtn" onclick="unlockAdmin()">확인</button>
+</div>
+</div>
+<div class="adminContent locked" id="adminContent">
+<h3>클럽 추가</h3>
+<input id="name" placeholder="클럽명">
+<input id="country" placeholder="국가">
+<input id="seasonPoints" type="number" step="any" placeholder="시즌 점수">
+<input id="points" type="number" step="any" placeholder="전체 포인트 (Pts)">
+<input id="logo" placeholder="로고 URL">
+<select id="trend">
+<option value="none">변동 없음 (＝)</option>
+<option value="up">상승 (▲)</option>
+<option value="down">하락 (▼)</option>
+</select>
+<button class="addBtn" onclick="add()">추가</button>
+<hr>
+<h3>시즌 추가</h3>
+<input id="newSeason" placeholder="예: 2026/27">
+<button onclick="addSeason()">시즌 추가</button>
+<hr>
+<h3>시즌 삭제</h3>
+<select id="deleteSeasonSelect"></select>
+<button class="deleteSeasonBtn" onclick="deleteSeason()">시즌 삭제</button>
+</div>
+</div>
+</div>
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+<div class="menuBox" id="menuBox">
+<div class="menuTitle">MENU</div>
+<button class="editBtn" onclick="openEditModal()">수정</button>
+<button class="deleteBtn" onclick="deleteItem()">삭제</button>
+</div>
+<div class="editModal" id="editModal">
+<div class="modalTitle">클럽 수정</div>
+<input id="editName" placeholder="클럽명">
+<input id="editCountry" placeholder="국가">
+<input id="editSeasonPoints" type="number" step="any" placeholder="시즌 점수">
+<input id="editPoints" type="number" step="any" placeholder="전체 포인트 (Pts)">
+<input id="editLogo" placeholder="로고 URL">
+<select id="editTrend">
+<option value="none">변동 없음 (＝)</option>
+<option value="up">상승 (▲)</option>
+<option value="down">하락 (▼)</option>
+</select>
+<button class="saveBtn" onclick="saveEdit()">저장</button>
+<button class="closeBtn" onclick="closeAll()">닫기</button>
+</div>
+<script>
+const defaultData = [
+{
+name:"Al Hilal",
+country:"Saudi Arabia",
+seasonPoints: 25,
+points:138,
+trend:"up",
+logo:"https://upload.wikimedia.org/wikipedia/en/2/2e/Al_Hilal_SFC_logo.svg"
+},
+{
+name:"Yokohama F. Marinos",
+country:"Japan",
+seasonPoints: 20,
+points:111,
+trend:"up",
+logo:"https://upload.wikimedia.org/wikipedia/en/4/44/Yokohama_F._Marinos_logo.svg"
+},
+{
+name:"Ulsan HD",
+country:"Korea",
+seasonPoints: 18,
+points:100,
+trend:"none",
+logo:"https://upload.wikimedia.org/wikipedia/en/4/4e/Ulsan_HD_FC_logo.svg"
+}
+];
+const defaultSeasons = ["2025/26"];
+const LONG_PRESS_TIME = 900;
+const ADMIN_PASSWORD = "1995";
+let seasons =
+JSON.parse(localStorage.getItem("afc_seasons")) ||
+defaultSeasons;
+let currentSeason =
+localStorage.getItem("afc_current_season") ||
+"2025/26";
+if(!seasons.includes(currentSeason)){
+currentSeason = seasons[0] || "2025/26";
+}
+function getSeasonKey(){
+return "afc_rank_" + currentSeason;
+}
+let data =
+JSON.parse(localStorage.getItem(getSeasonKey()));
+if(!data){
+data = currentSeason === "2025/26"
+? [...defaultData]
+: [];
+}
+let selectedIndex = null;
+let pressTimer = null;
+function save(){
+localStorage.setItem(
+getSeasonKey(),
+JSON.stringify(data)
+);
+}
+// 시즌명 포맷 변환 함수 (예: 2025/26 -> 25/26)
+function formatSeasonHeader(seasonStr) {
+const parts = seasonStr.split('/');
+if (parts.length === 2) {
+const year1 = parts[0].slice(-2);
+const year2 = parts[1].slice(-2);
+return `${year1}/${year2}`;
+}
+return seasonStr;
+}
+function updateTableHeader() {
+const header = document.getElementById("dynamicSeasonHeader");
+if (header) {
+header.textContent = formatSeasonHeader(currentSeason);
+}
+}
+function renderSeasonOptions(){
+const select =
+document.getElementById("seasonSelect");
+const deleteSelect =
+document.getElementById("deleteSeasonSelect");
+select.innerHTML = "";
+deleteSelect.innerHTML = "";
+seasons.forEach(season=>{
+select.innerHTML += `<option value="${season}">${season}</option>`;
+deleteSelect.innerHTML += `<option value="${season}">${season}</option>`;
+});
+select.value = currentSeason;
+deleteSelect.value = currentSeason;
+updateTableHeader();
+}
+function addSeason(){
+const season =
+document.getElementById("newSeason")
+.value
+.trim();
+if(!season){
+alert("시즌명을 입력하세요.");
+return;
+}
+if(seasons.includes(season)){
+alert("이미 존재하는 시즌입니다.");
+return;
+}
+seasons.push(season);
+localStorage.setItem(
+"afc_seasons",
+JSON.stringify(seasons)
+);
+localStorage.setItem(
+"afc_rank_" + season,
+JSON.stringify([])
+);
+currentSeason = season;
+localStorage.setItem(
+"afc_current_season",
+currentSeason
+);
+document.getElementById("newSeason").value = "";
+data = [];
+renderSeasonOptions();
+render();
+}
+function deleteSeason(){
+const targetSeason =
+document.getElementById(
+"deleteSeasonSelect"
+).value;
+if(seasons.length === 1){
+alert("최소 1개의 시즌은 유지해야 합니다.");
+return;
+}
+if(!confirm(targetSeason + " 시즌을 삭제하시겠습니까?")){
+return;
+}
+localStorage.removeItem(
+"afc_rank_" + targetSeason
+);
+seasons = seasons.filter(
+season => season !== targetSeason
+);
+localStorage.setItem(
+"afc_seasons",
+JSON.stringify(seasons)
+);
+if(currentSeason === targetSeason){
+currentSeason = seasons[0];
+localStorage.setItem(
+"afc_current_season",
+currentSeason
+);
+data =
+JSON.parse(localStorage.getItem(getSeasonKey()));
+if(!data){
+data = currentSeason === "2025/26"
+? [...defaultData]
+: [];
+}
+}
+renderSeasonOptions();
+render();
+}
+function changeSeason(){
+currentSeason =
+document.getElementById("seasonSelect").value;
+localStorage.setItem(
+"afc_current_season",
+currentSeason
+);
+data =
+JSON.parse(localStorage.getItem(getSeasonKey()));
+if(!data){
+data = currentSeason === "2025/26"
+? [...defaultData]
+: [];
+}
+updateTableHeader();
+render();
+}
+function trendHTML(trend){
+if(trend === "up"){
+return '<span class="up">▲</span>';
+}
+if(trend === "down"){
+return '<span class="down">▼</span>';
+}
+return '<span class="none">＝</span>';
+}
+function render(){
+const body =
+document.getElementById("body");
+body.innerHTML = "";
+// 포인트 기준 내림차순 정렬
+data.sort((a, b) => (b.points || 0) - (a.points || 0));
+data.forEach((club,index)=>{
+const sPoints = club.seasonPoints !== undefined ? club.seasonPoints : "-";
+body.innerHTML += `<tr onmousedown="startPress(${index})"
+ontouchstart="startPress(${index})"
+onmouseup="cancelPress()"
+onmouseleave="cancelPress()"
+ontouchend="cancelPress()"
+ontouchcancel="cancelPress()">
+<td class="rank">${index + 1}</td>
+<td>
+<div class="clubBox">
+<div class="trendWrap">
+${trendHTML(club.trend)}
+</div>
+<div class="logoWrap">
+<img
+class="logo"
+src="${club.logo}"
+onerror="this.src='https://placehold.co/64x64/FFFFFF/19303A?text=FC'">
+</div>
+<div>
+<div class="name">${club.name}</div>
+<div class="country">${club.country}</div>
+</div>
+</div>
+</td>
+<td style="text-align: center;">${sPoints}</td>
+<td style="text-align: right;">${club.points}</td>
+</tr>`;
+});
+save();
+}
+function startPress(index){
+cancelPress();
+pressTimer = setTimeout(()=>{
+openMenu(index);
+}, LONG_PRESS_TIME);
+}
+function cancelPress(){
+if(pressTimer){
+clearTimeout(pressTimer);
+pressTimer = null;
+}
+}
+function add(){
+const name =
+document.getElementById("name").value.trim();
+const country =
+document.getElementById("country").value.trim();
+const seasonPoints =
+document.getElementById("seasonPoints").value;
+const points =
+document.getElementById("points").value;
+const logo =
+document.getElementById("logo").value.trim();
+const trend =
+document.getElementById("trend").value;
+if(!name || !country || !points){
+alert("클럽명, 국가, 포인트를 입력하세요.");
+return;
+}
+data.push({
+name,
+country,
+seasonPoints: seasonPoints !== "" ? Number(seasonPoints) : 0,
+points:Number(points),
+trend,
+logo
+});
+save();
+render();
+document.getElementById("name").value = "";
+document.getElementById("country").value = "";
+document.getElementById("seasonPoints").value = "";
+document.getElementById("points").value = "";
+document.getElementById("logo").value = "";
+document.getElementById("trend").value = "none";
+}
+function openMenu(index){
+selectedIndex = index;
+document.getElementById("overlay").style.display = "block";
+document.getElementById("menuBox").style.display = "block";
+}
+function openEditModal(){
+document.getElementById("menuBox").style.display = "none";
+document.getElementById("editModal").style.display = "block";
+const club = data[selectedIndex];
+document.getElementById("editName").value = club.name;
+document.getElementById("editCountry").value = club.country;
+document.getElementById("editSeasonPoints").value = club.seasonPoints !== undefined ? club.seasonPoints : "";
+document.getElementById("editPoints").value = club.points;
+document.getElementById("editLogo").value = club.logo;
+document.getElementById("editTrend").value = club.trend;
+}
+function saveEdit(){
+const club = data[selectedIndex];
+club.name =
+document.getElementById("editName").value.trim();
+club.country =
+document.getElementById("editCountry").value.trim();
+const sPoints = document.getElementById("editSeasonPoints").value;
+club.seasonPoints = sPoints !== "" ? Number(sPoints) : 0;
+club.points =
+Number(document.getElementById("editPoints").value);
+club.logo =
+document.getElementById("editLogo").value.trim();
+club.trend =
+document.getElementById("editTrend").value;
+save();
+render();
+closeAll();
+}
+function deleteItem(){
+if(selectedIndex === null){
+return;
+}
+data.splice(selectedIndex,1);
+save();
+render();
+closeAll();
+}
+function closeAll(){
+document.getElementById("overlay").style.display = "none";
+document.getElementById("menuBox").style.display = "none";
+document.getElementById("editModal").style.display = "none";
+selectedIndex = null;
+}
+function unlockAdmin(){
+const password =
+document.getElementById("adminPassword").value;
+if(password !== ADMIN_PASSWORD){
+alert("비밀번호가 올바르지 않습니다.");
+return;
+}
+sessionStorage.setItem(
+"afc_admin_unlock",
+"true"
+);
+applyAdminState();
+}
+function applyAdminState(){
+const unlocked =
+sessionStorage.getItem(
+"afc_admin_unlock"
+) === "true";
+const content =
+document.getElementById("adminContent");
+const box =
+document.getElementById("passwordBox");
+if(unlocked){
+content.classList.remove("locked");
+box.style.display = "none";
+}else{
+content.classList.add("locked");
+box.style.display = "flex";
+}
+}
+renderSeasonOptions();
+render();
+applyAdminState();
+</script>
+</body>
+</html>
