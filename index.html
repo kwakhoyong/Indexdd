@@ -66,7 +66,7 @@ border-collapse:collapse;
 background:#fff;
 border-radius:12px;
 overflow:hidden;
-table-layout: fixed; /* 컬럼 너비 고정을 위해 추가 */
+table-layout: fixed; /* 컬럼 너비 고정 */
 }
 th{
 background:#fff;
@@ -86,10 +86,10 @@ white-space: nowrap;
 overflow: hidden;
 text-overflow: ellipsis;
 }
-/* 테이블 컬럼 비율 및 정렬 조정 (세 번째 시즌 컬럼 및 하단 데이터 중앙 정렬로 교체) */
+/* 테이블 컬럼 비율 및 정렬 조정 */
 th:nth-child(1), td:nth-child(1) { width: 12%; }
 th:nth-child(2), td:nth-child(2) { width: 43%; }
-th:nth-child(3), td:nth-child(3) { width: 25%; text-align: center; } /* 가운데 정렬 적용 */
+th:nth-child(3), td:nth-child(3) { width: 25%; text-align: center; }
 th:nth-child(4), td:nth-child(4) { width: 20%; text-align: right; }
 th:nth-child(4) { text-align: right; }
 tbody tr{
@@ -293,7 +293,7 @@ font-size:12px;
 }
 th:nth-child(1), td:nth-child(1) { width: 15%; }
 th:nth-child(2), td:nth-child(2) { width: 40%; }
-th:nth-child(3), td:nth-child(3) { width: 25%; text-align: center; } /* 모바일 해상도에서도 중앙 정렬 유지 */
+th:nth-child(3), td:nth-child(3) { width: 25%; text-align: center; }
 th:nth-child(4), td:nth-child(4) { width: 20%; }
 }
 </style>
@@ -403,7 +403,6 @@ logo:"https://upload.wikimedia.org/wikipedia/en/4/4e/Ulsan_HD_FC_logo.svg"
 }
 ];
 const defaultSeasons = ["2025/26"];
-const LONG_PRESS_TIME = 900;
 const ADMIN_PASSWORD = "1995";
 let seasons =
 JSON.parse(localStorage.getItem("afc_seasons")) ||
@@ -425,13 +424,16 @@ data = currentSeason === "2025/26"
 : [];
 }
 let selectedIndex = null;
-let pressTimer = null;
+let lastTapTime = 0;
+let lastTapIndex = null;
+
 function save(){
 localStorage.setItem(
 getSeasonKey(),
 JSON.stringify(data)
 );
 }
+
 // 시즌명 포맷 변환 함수 (예: 2025/26 -> 25/26)
 function formatSeasonHeader(seasonStr) {
 const parts = seasonStr.split('/');
@@ -575,17 +577,16 @@ lastTapTime = currentTime;
 lastTapIndex = index;
 }
 }
-  
+
+function render(){
+const body =
+document.getElementById("body");
+body.innerHTML = "";
 // 포인트 기준 내림차순 정렬
 data.sort((a, b) => (b.points || 0) - (a.points || 0));
 data.forEach((club,index)=>{
 const sPoints = club.seasonPoints !== undefined ? club.seasonPoints : "-";
-body.innerHTML += `<tr onmousedown="startPress(${index})"
-ontouchstart="startPress(${index})"
-onmouseup="cancelPress()"
-onmouseleave="cancelPress()"
-ontouchend="cancelPress()"
-ontouchcancel="cancelPress()">
+body.innerHTML += `<tr onclick="handleRowClick(${index})">
 <td class="rank">${index + 1}</td>
 <td>
 <div class="clubBox">
@@ -610,18 +611,7 @@ onerror="this.src='https://placehold.co/64x64/FFFFFF/19303A?text=FC'">
 });
 save();
 }
-function startPress(index){
-cancelPress();
-pressTimer = setTimeout(()=>{
-openMenu(index);
-}, LONG_PRESS_TIME);
-}
-function cancelPress(){
-if(pressTimer){
-clearTimeout(pressTimer);
-pressTimer = null;
-}
-}
+
 function add(){
 const name =
 document.getElementById("name").value.trim();
