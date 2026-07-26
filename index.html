@@ -560,10 +560,22 @@ return '<span class="down">▼</span>';
 }
 return '<span class="none">＝</span>';
 }
-function render(){
-const body =
-document.getElementById("body");
-body.innerHTML = "";
+
+// 모바일/PC 겸용 더블 클릭/더블 터치 핸들러
+function handleRowClick(index) {
+const currentTime = new Date().getTime();
+const tapLength = currentTime - lastTapTime;
+
+if (tapLength < 350 && tapLength > 0 && lastTapIndex === index) {
+openMenu(index);
+lastTapTime = 0;
+lastTapIndex = null;
+} else {
+lastTapTime = currentTime;
+lastTapIndex = index;
+}
+}
+  
 // 포인트 기준 내림차순 정렬
 data.sort((a, b) => (b.points || 0) - (a.points || 0));
 data.forEach((club,index)=>{
